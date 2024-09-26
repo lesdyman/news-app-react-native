@@ -17,7 +17,7 @@ import { styles } from "./styles";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
 
 interface Props {
-  navigation: NativeStackNavigatorProps,
+  navigation: NativeStackNavigatorProps;
 }
 
 export const Main: React.FC<Props> = ({ navigation }) => {
@@ -149,7 +149,9 @@ export const Main: React.FC<Props> = ({ navigation }) => {
         <FlatList
           data={newsOnScreen}
           renderItem={({ item }) => (
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('Article')}>
+            <TouchableWithoutFeedback
+              onPress={() => navigation.navigate("Article", { item })}
+            >
               <View style={styles.newsItemContainer}>
                 <Image source={item.img} style={styles.newsItemImage} />
                 <View style={styles.overlay}>
