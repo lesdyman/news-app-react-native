@@ -5,4 +5,7 @@ export type RootStackParamList = {
   Article: {
     item: NewsItem;
   };
+  AllNews: {
+    NEWS: NewsItem[];
+  }
 };

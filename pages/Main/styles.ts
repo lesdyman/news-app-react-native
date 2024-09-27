@@ -17,9 +17,9 @@ export const styles = StyleSheet.create({
     width: 300,
     height: 32,
     padding: 5,
-    borderWidth: 1,
+    borderWidth: 0.2,
     borderRadius: 16,
-    borderColor: "#F0F1FA",
+    borderColor: "rgba(129, 129, 129, 0.8)",
   },
   searchInput: {
     flex: 1,
@@ -32,6 +32,7 @@ export const styles = StyleSheet.create({
     padding: 2,
     fontSize: 16,
     color: "#818181",
+    opacity: 0.8,
   },
   bellContainer: {
     backgroundColor: "#FF3A44",
@@ -153,6 +154,17 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     marginHorizontal: 16,
+  },
+  newsItemOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "space-between",
+    padding: 10,
+    borderRadius: 8,
   },
   newsItemImage: {
     width: "100%",

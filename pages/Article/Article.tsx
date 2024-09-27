@@ -3,6 +3,7 @@ import { useFonts } from "expo-font";
 import { ScrollView } from "react-native-gesture-handler";
 import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../types/RootStackParamList";
+import { BlurView } from 'expo-blur';
 
 type ArticlePageRouteProp = RouteProp<RootStackParamList, "Article">;
 
@@ -26,8 +27,11 @@ export const Article: React.FC<Props> = ({ route }) => {
       </View>
 
       {loadedFonts && (
+        
         <View style={articleStyles.titleBlock}>
+          <BlurView style={articleStyles.blurView}>
           <Text style={articleStyles.title}>{item.title}</Text>
+          </BlurView>
         </View>
       )}
 
@@ -61,15 +65,15 @@ const articleStyles = StyleSheet.create({
     position: "absolute",
     height: 141,
     width: 311,
-    backgroundColor: "#a4a3ab",
+    backgroundColor: "rgba(245, 245, 245, 0.6)",
     borderRadius: 16,
-    borderColor: "#a4a3ab",
-    borderWidth: 0.2,
+    borderColor: "rgb(245, 245, 245)",
+    borderWidth: 0.5,
     justifyContent: "center",
     alignItems: "center",
     top: 240,
     zIndex: 2,
-    opacity: .9,
+    overflow: 'hidden',
   },
   title: {
     fontSize: 16,
@@ -92,7 +96,16 @@ const articleStyles = StyleSheet.create({
     textAlign: "justify",
     marginTop: 80,
     fontSize: 14,
+    lineHeight: 21,
     marginBottom: 10,
     fontFamily: 'Nunito',
   },
+  blurView: {
+    height: '100%',
+    width: '100%',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
 });

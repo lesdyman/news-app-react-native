@@ -15,6 +15,7 @@ import { NEWS } from "../../api/api";
 import { NewsItem } from "../../types/NewsItem";
 import { styles } from "./styles";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
+import { NewsStory } from "../../components/NewsStory/NewsStory";
 
 interface Props {
   navigation: NativeStackNavigatorProps;
@@ -50,15 +51,6 @@ export const Main: React.FC<Props> = ({ navigation }) => {
     setNewsOnScreen(newsToShow);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`;
-  };
-
   useEffect(() => {
     newsToDisplay(selectedCategory);
   }, [selectedCategory]);
@@ -82,10 +74,17 @@ export const Main: React.FC<Props> = ({ navigation }) => {
         <View style={styles.latestNews}>
           <Text style={styles.latestNewsTitle}>Latest News</Text>
 
-          <View style={styles.seeAllContainer}>
-            <Text style={styles.seeAllText}>See All</Text>
-            <Ionicons name="arrow-forward-outline" style={styles.seeAllArrow} />
-          </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AllNews", { NEWS, navigation })}
+          >
+            <View style={styles.seeAllContainer}>
+              <Text style={styles.seeAllText}>See All</Text>
+              <Ionicons
+                name="arrow-forward-outline"
+                style={styles.seeAllArrow}
+              />
+            </View>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -93,20 +92,26 @@ export const Main: React.FC<Props> = ({ navigation }) => {
         <FlatList
           data={latestNews()}
           renderItem={({ item }) => (
-            <View style={styles.newsContainer}>
-              <View style={styles.imageContainer}>
-                <Image source={item.img} style={styles.newsListImg} />
-                <View style={styles.overlay}>
-                  <Text style={styles.newsTitle}>{item.title}</Text>
-                  <Text style={styles.newsDescription}>{item.description}</Text>
+            <TouchableWithoutFeedback
+              onPress={() => navigation.navigate("Article", { item })}
+            >
+              <View style={styles.newsContainer}>
+                <View style={styles.imageContainer}>
+                  <Image source={item.img} style={styles.newsListImg} />
+                  <View style={styles.overlay}>
+                    <Text style={styles.newsTitle}>{item.title}</Text>
+                    <Text style={styles.newsDescription}>
+                      {item.description}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
+            </TouchableWithoutFeedback>
           )}
           keyExtractor={(item) => item.id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
-          snapToInterval={250}
+          snapToInterval={50}
           decelerationRate="fast"
           bounces={false}
         />
@@ -149,19 +154,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
         <FlatList
           data={newsOnScreen}
           renderItem={({ item }) => (
-            <TouchableWithoutFeedback
-              onPress={() => navigation.navigate("Article", { item })}
-            >
-              <View style={styles.newsItemContainer}>
-                <Image source={item.img} style={styles.newsItemImage} />
-                <View style={styles.overlay}>
-                  <Text style={styles.newsItemTitle}>{item.title}</Text>
-                  <Text style={styles.newsItemDate}>
-                    Published: {formatDate(item.date)}
-                  </Text>
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
+            <NewsStory item={item} navigation={navigation} />
           )}
           keyExtractor={(item) => item.id.toString()}
         />
