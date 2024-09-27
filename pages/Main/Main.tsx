@@ -16,6 +16,13 @@ import { NewsItem } from "../../types/NewsItem";
 import { styles } from "./styles";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { NewsStory } from "../../components/NewsStory/NewsStory";
+import { Dimensions } from 'react-native';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const ITEM_WIDTH = 218;
+const ITEM_MARGIN = 20;
+
+const snapToInterval = ITEM_WIDTH + ITEM_MARGIN * 2 + (SCREEN_WIDTH - ITEM_WIDTH) / 2;
 
 interface Props {
   navigation: NativeStackNavigatorProps;
@@ -111,7 +118,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
           keyExtractor={(item) => item.id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
-          snapToInterval={50}
+          snapToInterval={snapToInterval}
           decelerationRate="fast"
           bounces={false}
         />

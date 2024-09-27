@@ -6,7 +6,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet, View } from "react-native";
 import { RootStackParamList } from "./types/RootStackParamList";
-import { AllNews } from "./pages/AllNews/AllNews";
+import AllNews from "./pages/AllNews/AllNews";
 import { BlurView } from "expo-blur";
 
 export const AppNavigation = () => {
