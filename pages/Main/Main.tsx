@@ -17,6 +17,7 @@ import { styles } from "./styles";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { NewsStory } from "../../components/NewsStory/NewsStory";
 import { Dimensions } from 'react-native';
+import { ScrollView } from "react-native-gesture-handler";
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const ITEM_WIDTH = 218;

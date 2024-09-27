@@ -73,9 +73,9 @@ export const Article: React.FC<Props> = ({ route }) => {
             </BlurView>
           </Animated.View>
         )}
-        <View style={articleStyles.textBlock}>
+        <ScrollView style={articleStyles.textBlock}>
           <Text style={articleStyles.text}>{item.content}</Text>
-        </View>
+        </ScrollView>
       </Animated.ScrollView>
     </View>
   );
