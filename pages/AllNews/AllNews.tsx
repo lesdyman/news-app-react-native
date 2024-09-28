@@ -1,4 +1,4 @@
-import { Animated, SafeAreaView, StyleSheet, View} from "react-native";
+import { Animated, Modal, SafeAreaView, StyleSheet, View} from "react-native";
 import { NewsStory } from "../../components/NewsStory/NewsStory";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RouteProp } from "@react-navigation/native";
@@ -59,5 +59,7 @@ const AllNews: React.FC<Props> = ({route, navigation}) => {
        />
   </SafeAreaView>
 )};
+
+
 
 export default React.memo(AllNews);

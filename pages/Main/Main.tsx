@@ -10,6 +10,8 @@ import {
   View,
   RefreshControl,
   ActivityIndicator,
+  Modal,
+  StyleSheet,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFonts } from "expo-font";
@@ -18,13 +20,16 @@ import { NewsItem } from "../../types/NewsItem";
 import { styles } from "./styles";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { NewsStory } from "../../components/NewsStory/NewsStory";
-import { Dimensions } from 'react-native';
+import { Dimensions } from "react-native";
+import { formatDate } from "../../utils/utils";
+import SearchModal from "../SearchModal/SearchModal";
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = 218;
 const ITEM_MARGIN = 20;
 
-const snapToInterval = ITEM_WIDTH + ITEM_MARGIN * 2 + (SCREEN_WIDTH - ITEM_WIDTH) / 2;
+const snapToInterval =
+  ITEM_WIDTH + ITEM_MARGIN * 2 + (SCREEN_WIDTH - ITEM_WIDTH) / 2;
 
 interface Props {
   navigation: NativeStackNavigatorProps;
@@ -40,6 +45,9 @@ export const Main: React.FC<Props> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [latestNews, setLatestNEws] = useState<NewsItem[]>([]);
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [searchResults, setSearchResults] = useState<NewsItem[]>([]);
 
   const getLatestNews = () => {
     const sorted = NEWS.sort((item1, item2) =>
@@ -63,29 +71,65 @@ export const Main: React.FC<Props> = ({ navigation }) => {
     setNewsOnScreen(newsToShow);
   };
 
+  const resetInput = () => {
+    setSearchInput("");
+    setSearchResults([]);
+  };
+
   const handleRefresh = () => {
     setRefreshing(true);
-    setLoading(true); 
+    setLoading(true);
 
     setTimeout(() => {
       newsToDisplay(selectedCategory);
       setRefreshing(false);
       setLoading(false);
-      getLatestNews()
+      getLatestNews();
     }, 2000);
+  };
+
+  const filterNews = (input: string) => {
+    const filtered = NEWS.filter(
+      (newsItem) =>
+        newsItem.title.toLowerCase().includes(input.toLowerCase()) ||
+        newsItem.description.toLowerCase().includes(input.toLowerCase())
+    );
+    setSearchResults(filtered);
+  };
+
+  const handleSearchSubmit = () => {
+    filterNews(searchInput);
+    if (searchInput.trim().length > 0) {
+      setIsModalVisible(true);
+    }
   };
 
   useEffect(() => {
     newsToDisplay(selectedCategory);
-    getLatestNews()
+    getLatestNews();
   }, [selectedCategory]);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchContainer}>
         <View style={styles.search}>
-          <TextInput style={styles.searchInput} placeholder="Search..." />
-          <Ionicons name="search-outline" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search..."
+            value={searchInput}
+            onChangeText={(text) => {
+              setSearchInput(text);
+              filterNews(text);
+            }}
+            onSubmitEditing={handleSearchSubmit}
+          />
+          {searchInput ? (
+            <TouchableWithoutFeedback onPress={() => resetInput()}>
+              <Ionicons name="close" style={styles.searchIcon} />
+            </TouchableWithoutFeedback>
+          ) : (
+            <Ionicons name="search-outline" style={styles.searchIcon} />
+          )}
         </View>
 
         <TouchableOpacity onPress={() => handleRefresh()}>
@@ -114,9 +158,9 @@ export const Main: React.FC<Props> = ({ navigation }) => {
       )}
 
       <View style={styles.carouselContainer}>
-      {loading && (
-            <ActivityIndicator size='large' color="#fff" style={styles.loader} />
-          )}
+        {loading && (
+          <ActivityIndicator size="large" color="#fff" style={styles.loader} />
+        )}
         <FlatList
           data={latestNews}
           renderItem={({ item }) => (
@@ -125,13 +169,13 @@ export const Main: React.FC<Props> = ({ navigation }) => {
             >
               <View style={styles.newsContainer}>
                 <View style={styles.imageContainer}>
-                      <Image source={item.img} style={styles.newsListImg} />
-                      <View style={styles.overlay}>
-                        <Text style={styles.newsTitle}>{item.title}</Text>
-                        <Text style={styles.newsDescription}>
-                          {item.description}
-                        </Text>
-                      </View>
+                  <Image source={item.img} style={styles.newsListImg} />
+                  <View style={styles.overlay}>
+                    <Text style={styles.newsTitle}>{item.title}</Text>
+                    <Text style={styles.newsDescription}>
+                      {item.description}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -190,6 +234,15 @@ export const Main: React.FC<Props> = ({ navigation }) => {
           }
         />
       </View>
+      <SearchModal
+        isVisible={isModalVisible}
+        onClose={() => {
+          setIsModalVisible(false),
+          setSearchInput('');
+        }}
+        searchResults={searchResults}
+        navigation={navigation}
+      />
     </SafeAreaView>
   );
 };
