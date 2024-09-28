@@ -6,6 +6,7 @@ import { RootStackParamList } from "../../types/RootStackParamList";
 import { BlurView } from 'expo-blur';
 import { useRef } from "react";
 import { Dimensions } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const BASIC_IMG_HEIGHT = 340;
 
@@ -43,13 +44,13 @@ export const Article: React.FC<Props> = ({ route }) => {
   });
 
   const titleBlockOpacity = scrollReff.interpolate({
-    inputRange: [0, 240],
+    inputRange: [0, 120],
     outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
   return (
-    <View style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1}}>
       <Animated.ScrollView
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollReff } } }],
@@ -77,7 +78,7 @@ export const Article: React.FC<Props> = ({ route }) => {
           <Text style={articleStyles.text}>{item.content}</Text>
         </ScrollView>
       </Animated.ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

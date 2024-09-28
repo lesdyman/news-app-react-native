@@ -58,6 +58,13 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     fontFamily: "New_York_Semibold",
   },
+  loader: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+    zIndex: 1,
+  },
   seeAllContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -73,6 +80,7 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
   carouselContainer: {
+    position: 'relative',
     marginTop: 16,
     marginLeft: 15,
   },

@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFonts } from "expo-font";
@@ -17,7 +19,6 @@ import { styles } from "./styles";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { NewsStory } from "../../components/NewsStory/NewsStory";
 import { Dimensions } from 'react-native';
-import { ScrollView } from "react-native-gesture-handler";
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const ITEM_WIDTH = 218;
@@ -36,12 +37,15 @@ export const Main: React.FC<Props> = ({ navigation }) => {
 
   const [selectedCategory, setSelectedCategory] = useState<string>("Ukraine");
   const [newsOnScreen, setNewsOnScreen] = useState<NewsItem[]>([]);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [latestNews, setLatestNEws] = useState<NewsItem[]>([]);
 
-  const latestNews = () => {
+  const getLatestNews = () => {
     const sorted = NEWS.sort((item1, item2) =>
-      item1.date.localeCompare(item2.date)
+      item2.date.localeCompare(item1.date)
     );
-    return sorted.slice(0, 5);
+    setLatestNEws(sorted.slice(0, 5));
   };
 
   const categories = () => {
@@ -59,8 +63,21 @@ export const Main: React.FC<Props> = ({ navigation }) => {
     setNewsOnScreen(newsToShow);
   };
 
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setLoading(true); 
+
+    setTimeout(() => {
+      newsToDisplay(selectedCategory);
+      setRefreshing(false);
+      setLoading(false);
+      getLatestNews()
+    }, 2000);
+  };
+
   useEffect(() => {
     newsToDisplay(selectedCategory);
+    getLatestNews()
   }, [selectedCategory]);
 
   return (
@@ -71,7 +88,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
           <Ionicons name="search-outline" style={styles.searchIcon} />
         </View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => handleRefresh()}>
           <View style={styles.bellContainer}>
             <Ionicons name="notifications-outline" style={styles.bell} />
           </View>
@@ -97,21 +114,24 @@ export const Main: React.FC<Props> = ({ navigation }) => {
       )}
 
       <View style={styles.carouselContainer}>
+      {loading && (
+            <ActivityIndicator size='large' color="#fff" style={styles.loader} />
+          )}
         <FlatList
-          data={latestNews()}
+          data={latestNews}
           renderItem={({ item }) => (
             <TouchableWithoutFeedback
               onPress={() => navigation.navigate("Article", { item })}
             >
               <View style={styles.newsContainer}>
                 <View style={styles.imageContainer}>
-                  <Image source={item.img} style={styles.newsListImg} />
-                  <View style={styles.overlay}>
-                    <Text style={styles.newsTitle}>{item.title}</Text>
-                    <Text style={styles.newsDescription}>
-                      {item.description}
-                    </Text>
-                  </View>
+                      <Image source={item.img} style={styles.newsListImg} />
+                      <View style={styles.overlay}>
+                        <Text style={styles.newsTitle}>{item.title}</Text>
+                        <Text style={styles.newsDescription}>
+                          {item.description}
+                        </Text>
+                      </View>
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -165,6 +185,9 @@ export const Main: React.FC<Props> = ({ navigation }) => {
             <NewsStory item={item} navigation={navigation} />
           )}
           keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
         />
       </View>
     </SafeAreaView>
