@@ -11,7 +11,6 @@ import {
   RefreshControl,
   ActivityIndicator,
   Modal,
-  StyleSheet,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFonts } from "expo-font";
@@ -21,7 +20,6 @@ import { styles } from "./styles";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { NewsStory } from "../../components/NewsStory/NewsStory";
 import { Dimensions } from "react-native";
-import { formatDate } from "../../utils/utils";
 import SearchModal from "../SearchModal/SearchModal";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
