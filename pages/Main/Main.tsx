@@ -10,7 +10,6 @@ import {
   View,
   RefreshControl,
   ActivityIndicator,
-  Modal,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFonts } from "expo-font";

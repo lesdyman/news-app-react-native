@@ -35,7 +35,7 @@ export const modalStyle = StyleSheet.create({
   resultItem: {
     padding: 5,
     borderRadius: 8,
-    backgroundColor: "rgba(183, 183, 183, 0.4)",
+    backgroundColor: "#B7B7B7",
     width: "100%",
     marginVertical: 4,
     gap: 8,
@@ -47,6 +47,7 @@ export const modalStyle = StyleSheet.create({
     shadowOpacity: 0.6,
     shadowRadius: 5,
     elevation: 5,
+    opacity: .8,
   },
   itemTitle: {
     fontSize: 16,
