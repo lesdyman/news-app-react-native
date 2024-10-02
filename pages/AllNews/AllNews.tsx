@@ -16,13 +16,13 @@ const ITEM_SIZE = 135;
 
 const AllNews: React.FC<Props> = ({route, navigation}) => {
 
-  const { NEWS } = route.params;
+  const { allNews } = route.params;
   const scrollY = useRef(new Animated.Value(0)).current;
 
   return (
   <SafeAreaView>
       <Animated.FlatList
-      data={NEWS}
+      data={allNews}
       onScroll={Animated.event(
         [
         {nativeEvent: {contentOffset: {y: scrollY}}}

@@ -16,7 +16,7 @@ export const NewsStory: React.FC<Props> = ({ navigation, item }) => (
     onPress={() => navigation.navigate("Article", { item })}
   >
     <View style={newsStoryStyles.newsItemContainer}>
-      <Image source={item.img} style={newsStoryStyles.newsItemImage} />
+      <Image source={{uri : item.img}} style={newsStoryStyles.newsItemImage} />
       <View style={newsStoryStyles.newsItemOverlay}>
         <Text style={newsStoryStyles.newsItemTitle}>{item.title}</Text>
         <Text style={newsStoryStyles.newsItemDate}>

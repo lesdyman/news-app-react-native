@@ -6,6 +6,6 @@ export type RootStackParamList = {
     item: NewsItem;
   };
   AllNews: {
-    NEWS: NewsItem[];
+    allNews: NewsItem[];
   }
 };

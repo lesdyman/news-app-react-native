@@ -6,7 +6,6 @@ import {
   TouchableWithoutFeedback,
   View,
   Modal,
-  StyleSheet,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { NewsItem } from "../../types/NewsItem";

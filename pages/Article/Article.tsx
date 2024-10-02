@@ -63,7 +63,7 @@ export const Article: React.FC<Props> = ({ route }) => {
       >
         <View style={articleStyles.photoContainer}>
           <Animated.Image
-            source={item.img}
+            source={{uri: item.img}}
             style={[articleStyles.photo, getImageTransformStyle(scrollReff)]}
           />
         </View>

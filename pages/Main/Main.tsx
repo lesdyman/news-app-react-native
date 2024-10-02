@@ -13,13 +13,16 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFonts } from "expo-font";
-import { NEWS } from "../../api/api";
 import { NewsItem } from "../../types/NewsItem";
 import { styles } from "./styles";
 import { NativeStackNavigatorProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { NewsStory } from "../../components/NewsStory/NewsStory";
 import { Dimensions } from "react-native";
 import SearchModal from "../SearchModal/SearchModal";
+import database from '../../db/firestore';
+import { collection, getDocs } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = 218;
@@ -41,31 +44,88 @@ export const Main: React.FC<Props> = ({ navigation }) => {
   const [newsOnScreen, setNewsOnScreen] = useState<NewsItem[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [latestNews, setLatestNEws] = useState<NewsItem[]>([]);
+  const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
   const [searchInput, setSearchInput] = useState<string>("");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<NewsItem[]>([]);
+  const [allNews, setAllNews] = useState<NewsItem[]>([]);
 
-  const getLatestNews = () => {
-    const sorted = NEWS.sort((item1, item2) =>
-      item2.date.localeCompare(item1.date)
-    );
-    setLatestNEws(sorted.slice(0, 5));
+  const saveNewsToLocalStorage = async (newsArray: NewsItem[]) => {
+    try {
+      await AsyncStorage.setItem("news", JSON.stringify(newsArray));
+    } catch (error) {
+      console.error("Error saving news to localStorage:", error);
+    }
   };
 
+  const getNewsFromLocalStorage = async () => {
+    try {
+      const newsData = await AsyncStorage.getItem("news");
+      if (newsData) {
+        const parsedNews = JSON.parse(newsData) as NewsItem[];
+        setAllNews(parsedNews);
+        updateNewsOnScreen(selectedCategory, parsedNews);
+        setLatestNews(parsedNews.slice(0, 5));
+      }
+    } catch (error) {
+      console.error("Error retrieving news from localStorage:", error);
+    }
+  };
+
+  const fetchNewsFromFirestore = async () => {
+    try {
+      setLoading(true);
+      const querySnapshot = await getDocs(collection(database, "news"));
+      const newsArray: NewsItem[] = [];
+      const storage = getStorage();
+
+      for (const doc of querySnapshot.docs) {
+        const newsData = doc.data() as NewsItem;
+        const newsItemWithId = { ...newsData, id: doc.id };
+
+        if (newsItemWithId.img) {
+          const imgRef = ref(storage, newsItemWithId.img);
+          try {
+            newsItemWithId.img = await getDownloadURL(imgRef);
+          } catch (error) {
+            console.error("Error loading image from Firebase Storage:", error);
+            newsItemWithId.img = null;
+          }
+        } else {
+          console.log("No image found for story:", newsItemWithId.title);
+        }
+
+        newsArray.push(newsItemWithId);
+      }
+
+      await saveNewsToLocalStorage(newsArray);
+    } catch (error) {
+      console.error("Error occurred during fetching data from Firestore:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateNewsOnScreen = (category: string, newsArray: NewsItem[]) => {
+    const filteredNews = newsArray.filter((item) => item.category === category);
+    setNewsOnScreen(filteredNews);
+  };
+
+  useEffect(() => {
+    getNewsFromLocalStorage();
+    fetchNewsFromFirestore();
+  }, []);
+
+  useEffect(() => {
+    updateNewsOnScreen(selectedCategory, allNews);
+  }, [selectedCategory, allNews]);
+
   const categories = () => {
-    const uniqueCategories = [...new Set(NEWS.map((news) => news.category))];
+    const uniqueCategories = [...new Set(allNews.map((news) => news.category))];
     return uniqueCategories.map((category, index) => ({
       id: (index + 10).toString(),
       title: category,
     }));
-  };
-
-  const newsToDisplay = (category: string) => {
-    const newsToShow = NEWS.filter((story) => story.category === category).sort(
-      (item1, item2) => item2.date.localeCompare(item1.date)
-    );
-    setNewsOnScreen(newsToShow);
   };
 
   const resetInput = () => {
@@ -78,15 +138,14 @@ export const Main: React.FC<Props> = ({ navigation }) => {
     setLoading(true);
 
     setTimeout(() => {
-      newsToDisplay(selectedCategory);
+      updateNewsOnScreen(selectedCategory, allNews);
       setRefreshing(false);
       setLoading(false);
-      getLatestNews();
     }, 2000);
   };
 
   const filterNews = (input: string) => {
-    const filtered = NEWS.filter(
+    const filtered = allNews.filter(
       (newsItem) =>
         newsItem.title.toLowerCase().includes(input.toLowerCase()) ||
         newsItem.description.toLowerCase().includes(input.toLowerCase())
@@ -102,9 +161,8 @@ export const Main: React.FC<Props> = ({ navigation }) => {
   };
 
   useEffect(() => {
-    newsToDisplay(selectedCategory);
-    getLatestNews();
-  }, [selectedCategory]);
+    updateNewsOnScreen(selectedCategory, allNews);
+  }, [selectedCategory, allNews]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -141,7 +199,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.latestNewsTitle}>Latest News</Text>
 
           <TouchableOpacity
-            onPress={() => navigation.navigate("AllNews", { NEWS, navigation })}
+            onPress={() => navigation.navigate("AllNews", { allNews, navigation })}
           >
             <View style={styles.seeAllContainer}>
               <Text style={styles.seeAllText}>See All</Text>
@@ -166,7 +224,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
             >
               <View style={styles.newsContainer}>
                 <View style={styles.imageContainer}>
-                  <Image source={item.img} style={styles.newsListImg} />
+                  <Image source={{ uri: item.img }} style={styles.newsListImg} />
                   <View style={styles.overlay}>
                     <Text style={styles.newsTitle}>{item.title}</Text>
                     <Text style={styles.newsDescription}>
@@ -197,7 +255,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
               ]}
               onPress={() => {
                 setSelectedCategory(item.title);
-                newsToDisplay(item.title);
+                updateNewsOnScreen(item.title, allNews);
               }}
             >
               <Text
@@ -234,7 +292,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
       <SearchModal
         isVisible={isModalVisible}
         onClose={() => {
-          setIsModalVisible(false),
+          setIsModalVisible(false);
           setSearchInput('');
         }}
         searchResults={searchResults}
