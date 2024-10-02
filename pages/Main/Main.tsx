@@ -40,7 +40,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
     New_York_Semibold: require("../../assets/Fonts/New_York_Small_Semibold.ttf"),
   });
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("Ukraine");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Culture");
   const [newsOnScreen, setNewsOnScreen] = useState<NewsItem[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -125,7 +125,7 @@ export const Main: React.FC<Props> = ({ navigation }) => {
     return uniqueCategories.map((category, index) => ({
       id: (index + 10).toString(),
       title: category,
-    }));
+    })).sort((category1, category2) => category1.title.localeCompare(category2.title));
   };
 
   const resetInput = () => {
@@ -138,6 +138,8 @@ export const Main: React.FC<Props> = ({ navigation }) => {
     setLoading(true);
 
     setTimeout(() => {
+      fetchNewsFromFirestore();
+      getNewsFromLocalStorage();
       updateNewsOnScreen(selectedCategory, allNews);
       setRefreshing(false);
       setLoading(false);
